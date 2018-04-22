@@ -113,13 +113,11 @@ class Server:
                     if delta.seconds>300:
                         self._remove_from_queue(self,task)
 
-
     def _remove_from_queue(self,task):
         self.data_of_queue._data[task._num_of_queue].remove(task)
         task._status=False
         task._date_of_take = None
         self.data_of_queue._data[task._num_of_queue].append(task)
-
 
 
 if __name__ == '__main__':
