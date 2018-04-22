@@ -105,8 +105,8 @@ class Server:
                 self.list_of_process.remove(task)
 
     def _remove_from_queue(self,task):
-        task._status=False
         self.data_of_queue._data[task._num_of_queue].remove(task)
+        task._status=False
         self.data_of_queue._data[task._num_of_queue].append(task)
 
 
