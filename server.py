@@ -11,17 +11,23 @@ class Server:
         self.sock.listen(1)
         self.data_of_queue = Struckt_of_Queue('1', 0, {})
         self.list_of_process=[]
+        self.sock.setblocking(0)
 
     def run(self):
         self._restore()
-        while True:
-            conn, addr = self.sock.accept()
-            data = conn.recv(10000000)
-            arguments = data.decode('utf-8').split(' ')
-            result=eval('self._'+arguments[0].lower())(arguments)
-            conn.send(bytes(result, 'utf-8'))
-            conn.close()
-            self._archive()
+        while 1:
+            print('xyz')
+            while True:
+                try: conn, addr = self.sock.accept()
+                except socket.error:
+                    break
+                else:
+                    data = conn.recv(10000000)
+                    arguments = data.decode('utf-8').split(' ')
+                    result=eval('self._'+arguments[0].lower())(arguments)
+                    conn.send(bytes(result, 'utf-8'))
+                    conn.close()
+                    self._archive()
             self._check_timeout()
 
     def _add(self, ars):
