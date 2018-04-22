@@ -10,7 +10,6 @@ class Server:
         self.sock.bind(('127.0.0.1', 5555))
         self.sock.listen(1)
         self.data_of_queue = Struckt_of_Queue('1', 0, {})
-        self.list_of_process=[]
         self.sock.setblocking(0)
 
     def run(self):
@@ -54,7 +53,6 @@ class Server:
             if not list_of_task[i].get_status():
                 self.data_of_queue._data[ars[1]][i]._status=True
                 self.data_of_queue._data[ars[1]][i]._date_of_take=datetime.now()
-                self.list_of_process.append(self.data_of_queue._data[ars[1]][i])
                 return str(list_of_task[i].get_id())+' '+list_of_task[i].get_length()+' '+list_of_task[i].get_data()
         return 'NONE'
 
@@ -80,7 +78,7 @@ class Server:
                     key = arguments[1]
                     current_task = Task(int(arguments[2]), arguments[3], arguments[4],key)
                     current_task._status=arguments[5]
-                    current_task._date_of_take = arguments[6]
+                    current_task._date_of_take = datetime.strptime(arguments[6])
                     data_dict[key].append(current_task)
                 else:
                     self.data_of_queue._current_id=int(arguments[0])
@@ -106,15 +104,20 @@ class Server:
 
     def _check_timeout(self):
         now_time=datetime.now()
-        for task in self.list_of_process:
-            delta=now_time-task._date_of_take
-            if delta.seconds>300:
-                self._remove_from_queue(task)
-                self.list_of_process.remove(task)
+        current_data=self.data_of_queue.get_data()
+        data_values=list(current_data.values())
+        for current_list in data_values:
+            for task in current_list:
+                if task._date_of_take is not None:
+                    delta = now_time - task._date_of_take
+                    if delta.seconds>300:
+                        self._remove_from_queue(self,task)
+
 
     def _remove_from_queue(self,task):
         self.data_of_queue._data[task._num_of_queue].remove(task)
         task._status=False
+        task._date_of_take = None
         self.data_of_queue._data[task._num_of_queue].append(task)
 
 
