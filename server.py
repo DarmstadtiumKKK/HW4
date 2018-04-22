@@ -1,5 +1,4 @@
 import socket
-import msvcrt
 import os
 from datetime import datetime, date, time
 from classes import Struckt_of_Queue, Task
@@ -24,7 +23,6 @@ class Server:
             conn.close()
             self._archive()
             self._check_timeout()
-            #if msvcrt.kbhit()==''
 
     def _add(self, ars):
         if not self.data_of_queue.exsist(ars[1]):
