@@ -16,8 +16,7 @@ class Server:
     def run(self):
         self._restore()
         try:
-            while 1:
-                print('xyz')
+            while True:
                 while True:
                     try: conn, addr = self.sock.accept()
                     except socket.error:
