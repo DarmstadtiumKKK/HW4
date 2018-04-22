@@ -15,20 +15,23 @@ class Server:
 
     def run(self):
         self._restore()
-        while 1:
-            print('xyz')
-            while True:
-                try: conn, addr = self.sock.accept()
-                except socket.error:
-                    break
-                else:
-                    data = conn.recv(10000000)
-                    arguments = data.decode('utf-8').split(' ')
-                    result=eval('self._'+arguments[0].lower())(arguments)
-                    conn.send(bytes(result, 'utf-8'))
-                    conn.close()
-                    self._archive()
-            self._check_timeout()
+        try:
+            while 1:
+                print('xyz')
+                while True:
+                    try: conn, addr = self.sock.accept()
+                    except socket.error:
+                        break
+                    else:
+                        data = conn.recv(10000000)
+                        arguments = data.decode('utf-8').split(' ')
+                        result=eval('self._'+arguments[0].lower())(arguments)
+                        conn.send(bytes(result, 'utf-8'))
+                        conn.close()
+                        self._archive()
+                self._check_timeout()
+        except KeyboardInterrupt:
+            return None
 
     def _add(self, ars):
         if not self.data_of_queue.exsist(ars[1]):
