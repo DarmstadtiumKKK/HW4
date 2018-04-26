@@ -51,6 +51,8 @@ class ServerBaseTest(TestCase):
 
         self.assertEqual(b'YES', self.send(b'ACK 1 ' + second_task_id))
         self.assertEqual(b'NO', self.send(b'ACK 1 ' + second_task_id))
+        #ДОБАВЛЕННО МНОЙ ДЛЯ ТОГО ЧТО БЫ ПОСЛЕ ВЫПОЛНЕНИЯ ТЕСТОВ RECOVERY ФАЙЛ ОСТАВАЛСЯ ПУСТЫМ
+        self.assertEqual(b'YES', self.send(b'ACK 1 ' + first_task_id))
 
 
 if __name__ == '__main__':
