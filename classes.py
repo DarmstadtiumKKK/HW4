@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from datetime import datetime, date, time
+import os
 
 # class StandData(metaclass=ABCMeta):
 
@@ -76,6 +77,45 @@ class Struckt_of_Queue(StandStruckt):
         for current_list in data_values:
             for task in current_list:
                 task.check_timeout(timeout)
+
+    def restore(self):
+        if not os.path.exists("restore_file.txt"):
+            return None
+        data_dict={}
+        restore_file = open('restore_file.txt', 'r')
+        for line in restore_file:
+            arguments = line.split(' ')
+            if arguments[0]=='queue':
+                key = arguments[1][: len(arguments[1]) - 1]
+                data_dict[key]=[]
+            else:
+                if arguments[0]=='task':
+                    key = arguments[1]
+                    current_task = Task(int(arguments[2]), arguments[3], arguments[4],key)
+                    current_task._status=arguments[5]
+                    current_task._date_of_take = arguments[6]
+                    data_dict[key].append(current_task)
+                else:
+                    self._current_id=int(arguments[0])
+        self._data=data_dict
+        restore_file.close()
+        return None
+
+    def archive(self):
+        archive_file = open('restore_file.txt', 'w')
+        data_dict=self.get_data()
+        keys=list(data_dict.keys())
+        values=list(data_dict.values())
+        for i in range(len(values)):
+            line='queue '+keys[i]+'\n'
+            archive_file.write(line)
+            for item in values:
+                for j in range(len(item)):
+                    line='task '+keys[i]+' '+str(item[j].get_id())+' '+item[j].get_length()+' '+item[j].get_data()+' '+str(item[j].get_status())+' '+str(item[j]._date_of_take)+'\n'
+                    archive_file.write(line)
+        archive_file.write(str(self._current_id))
+        archive_file.close()
+        return None
 
 
 class Task(StandStruckt):

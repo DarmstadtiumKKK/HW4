@@ -1,5 +1,4 @@
 import socket
-import os
 from datetime import datetime, date, time
 from classes import Struckt_of_Queue, Task
 
@@ -14,7 +13,7 @@ class Server:
         self.timeout = 300
 
     def run(self):
-        self._restore()
+        self.data_of_queue.restore()
         try:
             while True:
                 while True:
@@ -27,7 +26,7 @@ class Server:
                         result=eval('self._'+arguments[0].lower())(arguments)
                         conn.send(bytes(result, 'utf-8'))
                         conn.close()
-                        self._archive()
+                        self.data_of_queue.archive()
                 self.data_of_queue._check_timeout(self.timeout)
         except KeyboardInterrupt:
             return None
@@ -52,44 +51,7 @@ class Server:
             self.data_of_queue.remove(ars[1],ars[2])
         return check
 
-    def _restore(self):
-        if not os.path.exists("restore_file.txt"):
-            return None
-        data_dict={}
-        restore_file = open('restore_file.txt', 'r')
-        for line in restore_file:
-            arguments = line.split(' ')
-            if arguments[0]=='queue':
-                key = arguments[1][: len(arguments[1]) - 1]
-                data_dict[key]=[]
-            else:
-                if arguments[0]=='task':
-                    key = arguments[1]
-                    current_task = Task(int(arguments[2]), arguments[3], arguments[4],key)
-                    current_task._status=arguments[5]
-                    current_task._date_of_take = arguments[6]
-                    data_dict[key].append(current_task)
-                else:
-                    self.data_of_queue._current_id=int(arguments[0])
-        self.data_of_queue._data=data_dict
-        restore_file.close()
-        return None
 
-    def _archive(self):
-        archive_file = open('restore_file.txt', 'w')
-        data_dict=self.data_of_queue.get_data()
-        keys=list(data_dict.keys())
-        values=list(data_dict.values())
-        for i in range(len(values)):
-            line='queue '+keys[i]+'\n'
-            archive_file.write(line)
-            for item in values:
-                for j in range(len(item)):
-                    line='task '+keys[i]+' '+str(item[j].get_id())+' '+item[j].get_length()+' '+item[j].get_data()+' '+str(item[j].get_status())+' '+str(item[j]._date_of_take)+'\n'
-                    archive_file.write(line)
-        archive_file.write(str(self.data_of_queue._current_id))
-        archive_file.close()
-        return None
 
 
 
