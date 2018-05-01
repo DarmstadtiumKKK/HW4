@@ -11,18 +11,19 @@ class Server:
         self.data_of_queue = Struckt_of_Queue('1', 0, {})
         self.sock.setblocking(0)
         self.timeout = 300
-        self.dict_of_action={'ADD':4,'GET':2,'ACK':3,'IN':3}
+        self.dict_of_action={'ADD':[4, self._add],'GET':[2,self._get],'ACK':[3,self._ack],'IN':[3,self._in]}
 
     def _check_correct(self,args):
         if self.dict_of_action.get(args[0]) is not None:
-            if len(args)==self.dict_of_action[args[0]]:
-                return True
-        return False
+            if len(args)==self.dict_of_action[args[0]][0]:
+                return self.dict_of_action[args[0]][1]
+        return TypeError
 
     def run(self):
         self.data_of_queue.restore()
         try:
             while True:
+                self.data_of_queue._check_timeout(self.timeout)
                 while True:
                     try: conn, addr = self.sock.accept()
                     except socket.error:
@@ -30,12 +31,11 @@ class Server:
                     else:
                         data = conn.recv(10000000)
                         arguments = data.decode('utf-8').split(' ')
-                        if self._check_correct(arguments):
-                            result=eval('self._'+arguments[0].lower())(arguments)
-                            conn.send(bytes(result, 'utf-8'))
+                        fun=self._check_correct(arguments)
+                        result=fun(arguments)
+                        conn.send(bytes(result, 'utf-8'))
                         conn.close()
                         self.data_of_queue.archive()
-                self.data_of_queue._check_timeout(self.timeout)
         except KeyboardInterrupt:
             return None
 
